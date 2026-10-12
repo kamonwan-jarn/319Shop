@@ -9,12 +9,13 @@ interface Developer {
 
 // เปลี่ยน imageSrc เป็น path รูปสมาชิกจริงใน public/images ได้ตรงนี้
 const developers: Developer[] = [
-  { name: 'นิฤมน ศรีวิชา', studentId: '1660704923', role: 'Frontend / UI', imageSrc: '/images/dev1.png' },
-  { name: 'ธนากร กระสายกลาง', studentId: '1660703172', role: 'API / State', imageSrc: '/images/dev2.png' },
-  { name: 'กมลวรรณ จารไทสงค์', studentId: '1660704931', role: 'Routing / Testing', imageSrc: '/images/dev3.png' },
+  { name: 'นิฤมน ศรีวิชา', studentId: '1660704923', role: 'ส่วนติดต่อผู้ใช้', imageSrc: '/images/dev1.png' },
+  { name: 'ธนากร กระสายกลาง', studentId: '1660703172', role: 'API และจัดการสถานะ', imageSrc: '/images/dev2.png' },
+  { name: 'กมลวรรณ จารไทสงค์', studentId: '1660704931', role: 'เส้นทางและทดสอบระบบ', imageSrc: '/images/dev3.png' },
 ]
 
 export default function AboutPage() {
+  // แสดงข้อมูลโปรเจกต์ รายชื่อผู้พัฒนา และแหล่งที่มาของข้อมูลสินค้า
   return (
     <div className="mx-auto max-w-4xl space-y-8">
       <header className="rounded-3xl bg-zinc-700 px-6 py-8 text-white sm:px-10 sm:py-10">
@@ -52,7 +53,7 @@ export default function AboutPage() {
       </section>
 
       <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm sm:p-7">
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-zinc-500">Data attribution</p>
+        <p className="text-xs font-bold tracking-[0.16em] text-zinc-500">แหล่งข้อมูล</p>
         <h2 className="mt-2 text-xl font-bold text-zinc-800">เครดิตข้อมูลสินค้า</h2>
         <p className="mt-2 text-sm leading-6 text-zinc-600">ข้อมูลสินค้าและหมวดหมู่ในโปรเจกต์นี้ให้บริการโดย Fake Store API</p>
         <a href="https://fakestoreapi.com" target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-2 rounded-lg bg-zinc-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-600">ไปยัง FakeStoreAPI <ExternalLink size={15} /></a>

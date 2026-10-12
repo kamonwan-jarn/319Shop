@@ -5,6 +5,7 @@ import { useCartStore } from '../store/useCartStore'
 import ProductCard from '../components/ProductCard'
 
 export default function CartPage() {
+  // โหลดข้อมูลสินค้าที่บันทึกในตะกร้าและเปิดให้ลบสินค้าออกได้
   const items = useCartStore((state) => state.items)
   const removeItem = useCartStore((state) => state.removeItem)
   const results = useQueries({ queries: items.map(({ id }) => ({ queryKey: ['product', id], queryFn: () => fetchProductById(id), staleTime: 5 * 60 * 1000 })) })
