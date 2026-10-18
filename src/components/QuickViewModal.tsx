@@ -5,6 +5,7 @@ import { useCartStore } from '../store/useCartStore'
 import { useWishlistStore } from '../store/useWishlistStore'
 import { useToastStore } from '../store/useToastStore'
 import { formatPrice, translateProduct } from '../utils/locale'
+import { getOptimizedImageUrl } from '../utils/imageOptimizer'
 
 interface QuickViewModalProps {
   product: Product | null
@@ -49,10 +50,12 @@ export default function QuickViewModal({ product, onClose }: QuickViewModalProps
         </button>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-          <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 flex items-center justify-center">
+          <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 flex items-center justify-center min-h-[224px]">
             <img
-              src={product.image}
+              src={getOptimizedImageUrl(product.image, { size: 'card', width: 400, quality: 75 })}
               alt={title}
+              loading="eager"
+              decoding="async"
               className="max-h-56 object-contain mix-blend-multiply"
             />
           </div>

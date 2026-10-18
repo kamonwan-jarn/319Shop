@@ -1,14 +1,19 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Sparkles, ArrowRight, ShieldCheck, RotateCcw, Zap, Search } from 'lucide-react'
+import { Sparkles, ArrowRight, ShieldCheck, RotateCcw, Zap, Search, Loader2 } from 'lucide-react'
 import { fetchProducts } from '../api/products'
 import ProductCard from '../components/ProductCard'
 import { matchesProductSearch } from '../utils/productSearch'
+
+const PAGE_SIZE = 20
 
 export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [searchTerm, setSearchTerm] = useState<string>('')
   const [sortBy, setSortBy] = useState<string>('recommended')
+  const [visibleCount, setVisibleCount] = useState<number>(PAGE_SIZE)
+
+  const sentinelRef = useRef<HTMLDivElement | null>(null)
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: ['products'],
@@ -25,6 +30,11 @@ export default function HomePage() {
     electronics: 'อิเล็กทรอนิกส์',
   }
 
+  // Reset pagination when category, search, or sort changes
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE)
+  }, [selectedCategory, searchTerm, sortBy])
+
   const filteredAndSortedProducts = useMemo(() => {
     return products
       .filter((product) => {
@@ -40,6 +50,29 @@ export default function HomePage() {
         return 0
       })
   }, [products, selectedCategory, searchTerm, sortBy])
+
+  const visibleProducts = useMemo(() => {
+    return filteredAndSortedProducts.slice(0, visibleCount)
+  }, [filteredAndSortedProducts, visibleCount])
+
+  const hasMore = visibleCount < filteredAndSortedProducts.length
+
+  // Infinite scroll observer for smooth background loading as user scrolls
+  useEffect(() => {
+    if (!sentinelRef.current || !hasMore) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisibleCount((prev) => Math.min(prev + PAGE_SIZE, filteredAndSortedProducts.length))
+        }
+      },
+      { rootMargin: '300px' }
+    )
+
+    observer.observe(sentinelRef.current)
+    return () => observer.disconnect()
+  }, [hasMore, filteredAndSortedProducts.length])
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 space-y-8">
@@ -154,12 +187,44 @@ export default function HomePage() {
               <div key={i} className="bg-slate-100 h-72 rounded-3xl animate-pulse" />
             ))}
           </div>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {filteredAndSortedProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+        ) : filteredAndSortedProducts.length === 0 ? (
+          <div className="text-center py-16 bg-white rounded-3xl border border-slate-100">
+            <p className="text-slate-500 font-medium">ไม่พบสินค้าที่ตรงกับการค้นหา</p>
           </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {visibleProducts.map((product, idx) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  priority={idx < 8}
+                />
+              ))}
+            </div>
+
+            {/* Load More & Infinite Scroll Sentinel */}
+            {hasMore && (
+              <div ref={sentinelRef} className="flex flex-col items-center justify-center gap-3 pt-6 pb-12">
+                <div className="text-xs text-slate-500 font-medium">
+                  แสดงแล้ว <span className="font-bold text-slate-800">{visibleProducts.length}</span> จากทั้งหมด <span className="font-bold text-slate-800">{filteredAndSortedProducts.length}</span> รายการ
+                </div>
+                <div className="w-56 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-indigo-600 rounded-full transition-all duration-300"
+                    style={{ width: `${(visibleProducts.length / filteredAndSortedProducts.length) * 100}%` }}
+                  />
+                </div>
+                <button
+                  onClick={() => setVisibleCount((prev) => Math.min(prev + PAGE_SIZE, filteredAndSortedProducts.length))}
+                  className="mt-1 px-6 py-2.5 bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 rounded-2xl text-xs font-bold text-slate-700 hover:text-indigo-600 shadow-sm transition-all hover:shadow hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2"
+                >
+                  <Loader2 className="w-3.5 h-3.5 animate-spin opacity-50" />
+                  โหลดสินค้าเพิ่มเติม (+{Math.min(PAGE_SIZE, filteredAndSortedProducts.length - visibleCount)} รายการ)
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

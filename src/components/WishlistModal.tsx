@@ -5,6 +5,7 @@ import { useWishlistStore } from '../store/useWishlistStore'
 import { useCartStore } from '../store/useCartStore'
 import { useToastStore } from '../store/useToastStore'
 import { formatPrice, translateProduct } from '../utils/locale'
+import { getOptimizedImageUrl } from '../utils/imageOptimizer'
 
 interface WishlistModalProps {
   isOpen: boolean
@@ -66,8 +67,10 @@ export default function WishlistModal({ isOpen, onClose }: WishlistModalProps) {
                   className="flex items-center gap-4 p-3.5 bg-slate-50 rounded-2xl border border-slate-100"
                 >
                   <img
-                    src={product.image}
+                    src={getOptimizedImageUrl(product.image, { size: 'thumb', width: 120 })}
                     alt={title}
+                    loading="lazy"
+                    decoding="async"
                     className="w-14 h-14 object-contain bg-white p-1 rounded-xl border border-slate-100"
                   />
                   <div className="flex-1 min-w-0">

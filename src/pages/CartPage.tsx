@@ -18,6 +18,7 @@ import { fetchProductById } from '../api/products'
 import { useCartStore } from '../store/useCartStore'
 import { useOrderStore, type ShippingAddress } from '../store/useOrderStore'
 import { formatPrice, translateProduct } from '../utils/locale'
+import { getOptimizedImageUrl } from '../utils/imageOptimizer'
 
 // อัตราแลกเปลี่ยนแปลงหน่วยเปรียบเทียบ
 const EXCHANGE_RATE = 35
@@ -167,8 +168,10 @@ export default function CartPage() {
                   className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm flex flex-col sm:flex-row items-center gap-5"
                 >
                   <img
-                    src={item.product.image}
+                    src={getOptimizedImageUrl(item.product.image, { size: 'thumb', width: 140 })}
                     alt={title}
+                    loading="lazy"
+                    decoding="async"
                     className="w-20 h-20 object-contain p-2 bg-slate-50 rounded-2xl border border-slate-100"
                   />
                   <div className="flex-1 min-w-0 text-center sm:text-left">

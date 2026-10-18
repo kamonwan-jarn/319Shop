@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useOrderStore, type Order } from '../store/useOrderStore'
 import { Package, Clock, MapPin, CreditCard, Printer, Truck, X } from 'lucide-react'
 import { formatPrice } from '../utils/locale'
+import { getOptimizedImageUrl } from '../utils/imageOptimizer'
 
 export default function OrdersPage() {
   const orders = useOrderStore((state) => state.orders)
@@ -91,8 +92,10 @@ export default function OrdersPage() {
                 <div key={idx} className="flex items-center justify-between text-sm py-1">
                   <div className="flex items-center gap-3">
                     <img
-                      src={item.product.image}
+                      src={getOptimizedImageUrl(item.product.image, { size: 'thumb', width: 100 })}
                       alt={item.product.title}
+                      loading="lazy"
+                      decoding="async"
                       className="w-12 h-12 object-contain p-1 bg-slate-50 rounded-xl border border-slate-100"
                     />
                     <div>

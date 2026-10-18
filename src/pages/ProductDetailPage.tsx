@@ -5,6 +5,7 @@ import { ShoppingBag, Star, ArrowLeft, Check, Plus, Minus, ShieldCheck, Truck } 
 import { fetchProductById } from '../api/products'
 import { useCartStore } from '../store/useCartStore'
 import { formatPrice, translateProduct } from '../utils/locale'
+import { getOptimizedImageUrl } from '../utils/imageOptimizer'
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -63,11 +64,14 @@ export default function ProductDetailPage() {
 
       <div className="bg-white rounded-3xl p-6 md:p-10 border border-slate-100 shadow-xl shadow-slate-200/50 grid grid-cols-1 md:grid-cols-2 gap-10">
         {/* ฝั่งรูปภาพ */}
-        <div className="bg-slate-50/80 rounded-2xl p-8 flex items-center justify-center border border-slate-100 relative group">
+        <div className="bg-slate-50/80 rounded-2xl p-8 flex items-center justify-center border border-slate-100 relative group min-h-[320px]">
           <img
-            src={product.image}
+            src={getOptimizedImageUrl(product.image, { size: 'detail', width: 600, quality: 80 })}
             alt={title}
-            className="max-h-96 object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-300"
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
+            className="max-h-96 w-auto object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-300"
           />
         </div>
 
