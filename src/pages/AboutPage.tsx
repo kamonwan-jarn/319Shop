@@ -9,9 +9,9 @@ interface Developer {
 
 // ข้อมูลสมาชิกกลุ่มผู้พัฒนา
 const developers: Developer[] = [
-  { name: 'นิฤมน ศรีวิชา', studentId: '1660704923', role: 'ส่วนติดต่อผู้ใช้', imageSrc: '/images/dev1.png' },
-  { name: 'ธนากร กระสายกลาง', studentId: '1660703172', role: 'API และจัดการสถานะ', imageSrc: '/images/dev2.png' },
-  { name: 'กมลวรรณ จารไทสงค์', studentId: '1660704931', role: 'เส้นทางและทดสอบระบบ', imageSrc: '/images/dev3.png' },
+  { name: 'นิฤมน ศรีวิชา', studentId: '1660704923', role: 'User Interface ', imageSrc: '/images/dev1.png' },
+  { name: 'ธนากร กระสายกลาง', studentId: '1660703172', role: 'API and State Management', imageSrc: '/images/dev2.png' },
+  { name: 'กมลวรรณ จารไทสงค์', studentId: '1660704931', role: 'Routing and Testing', imageSrc: '/images/dev3.png' },
 ]
 
 export default function AboutPage() {

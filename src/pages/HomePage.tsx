@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Sparkles, ArrowRight, ShieldCheck, RotateCcw, Zap, Search } from 'lucide-react'
 import { fetchProducts } from '../api/products'
 import ProductCard from '../components/ProductCard'
+import { matchesProductSearch } from '../utils/productSearch'
 
 export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
@@ -29,9 +30,7 @@ export default function HomePage() {
       .filter((product) => {
         const matchesCategory =
           selectedCategory === 'all' || product.category === selectedCategory
-        const matchesSearch = product.title
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())
+        const matchesSearch = matchesProductSearch(product, searchTerm)
         return matchesCategory && matchesSearch
       })
       .sort((a, b) => {

@@ -1,6 +1,16 @@
 import type { Product } from '../types/product'
+import { extraProducts } from '../data/extraProducts'
+import { baseProductsFallback } from '../data/baseProductsFallback'
 
 const API_URL = 'https://fakestoreapi.com'
+
+const extraProductsMap = new Map<number, Product>(
+  extraProducts.map((p) => [p.id, p])
+)
+
+const baseProductsFallbackMap = new Map<number, Product>(
+  baseProductsFallback.map((p) => [p.id, p])
+)
 
 async function fetchJson<T>(url: string): Promise<T> {
   const response = await fetch(url)
@@ -8,18 +18,44 @@ async function fetchJson<T>(url: string): Promise<T> {
   return (await response.json()) as T
 }
 
-export function fetchProducts(): Promise<Product[]> {
-  return fetchJson<Product[]>(`${API_URL}/products`)
+export async function fetchProducts(): Promise<Product[]> {
+  try {
+    const baseProducts = await fetchJson<Product[]>(`${API_URL}/products`)
+    return [...baseProducts, ...extraProducts]
+  } catch (error) {
+    console.warn('FakeStoreAPI unavailable, using fallback products:', error)
+    return [...baseProductsFallback, ...extraProducts]
+  }
 }
 
-export function fetchProductById(id: number): Promise<Product> {
-  return fetchJson<Product>(`${API_URL}/products/${id}`)
+export async function fetchProductById(id: number): Promise<Product> {
+  const extra = extraProductsMap.get(id)
+  if (extra) {
+    return extra
+  }
+
+  try {
+    return await fetchJson<Product>(`${API_URL}/products/${id}`)
+  } catch (error) {
+    const fallback = baseProductsFallbackMap.get(id)
+    if (fallback) {
+      return fallback
+    }
+    throw error
+  }
 }
 
-export function fetchCategories(): Promise<string[]> {
-  return fetchJson<string[]>(`${API_URL}/products/categories`)
+export async function fetchCategories(): Promise<string[]> {
+  return [
+    'electronics',
+    'jewelery',
+    "men's clothing",
+    "women's clothing",
+  ]
 }
 
-export function fetchProductsByCategory(category: string): Promise<Product[]> {
-  return fetchJson<Product[]>(`${API_URL}/products/category/${encodeURIComponent(category)}`)
+export async function fetchProductsByCategory(category: string): Promise<Product[]> {
+  const all = await fetchProducts()
+  return all.filter((p) => p.category === category)
 }
+

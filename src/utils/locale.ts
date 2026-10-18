@@ -50,10 +50,13 @@ export function translateCategory(category: string): string {
 // ปรับข้อมูลที่แสดงให้เป็นภาษาไทย โดยคงข้อมูลต้นฉบับสำหรับการเรียก API ไว้
 export function translateProduct(product: Product): Product {
   const category = translateCategory(product.category)
+  const isOriginalFakeStore = Boolean(titles[product.title])
   return {
     ...product,
     title: titles[product.title] ?? product.title,
     category,
-    description: `สินค้า${category}คุณภาพดี คัดสรรมาเพื่อการใช้งานในชีวิตประจำวัน ดูรายละเอียดและราคาได้จากข้อมูลสินค้าด้านบน`,
+    description: isOriginalFakeStore
+      ? `สินค้า${category}คุณภาพดี คัดสรรมาเพื่อการใช้งานในชีวิตประจำวัน ดูรายละเอียดและราคาได้จากข้อมูลสินค้าด้านบน`
+      : (product.description || `สินค้า${category}คุณภาพดี คัดสรรมาเพื่อการใช้งานในชีวิตประจำวัน ดูรายละเอียดและราคาได้จากข้อมูลสินค้าด้านบน`),
   }
 }
