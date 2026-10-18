@@ -1,0 +1,168 @@
+import { useState, useMemo } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { Sparkles, ArrowRight, ShieldCheck, RotateCcw, Zap, Search } from 'lucide-react'
+import { fetchProducts } from '../api/products'
+import ProductCard from '../components/ProductCard'
+
+export default function HomePage() {
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [searchTerm, setSearchTerm] = useState<string>('')
+  const [sortBy, setSortBy] = useState<string>('recommended')
+
+  const { data: products = [], isLoading } = useQuery({
+    queryKey: ['products'],
+    queryFn: fetchProducts,
+  })
+
+  const categories = ['all', "men's clothing", "women's clothing", 'jewelery', 'electronics']
+
+  const categoryNames: Record<string, string> = {
+    all: 'ทั้งหมด',
+    "men's clothing": 'เสื้อผ้าผู้ชาย',
+    "women's clothing": 'เสื้อผ้าผู้หญิง',
+    jewelery: 'เครื่องประดับ',
+    electronics: 'อิเล็กทรอนิกส์',
+  }
+
+  const filteredAndSortedProducts = useMemo(() => {
+    return products
+      .filter((product) => {
+        const matchesCategory =
+          selectedCategory === 'all' || product.category === selectedCategory
+        const matchesSearch = product.title
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
+        return matchesCategory && matchesSearch
+      })
+      .sort((a, b) => {
+        if (sortBy === 'price-low') return a.price - b.price
+        if (sortBy === 'price-high') return b.price - a.price
+        if (sortBy === 'rating') return (b.rating?.rate || 0) - (a.rating?.rate || 0)
+        return 0
+      })
+  }, [products, selectedCategory, searchTerm, sortBy])
+
+  return (
+    <div className="max-w-6xl mx-auto px-4 py-6 space-y-8">
+      {/* Hero Banner */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-8 md:p-12 shadow-2xl border border-slate-800">
+        <div className="absolute -right-20 -top-20 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="relative z-10 max-w-xl space-y-4">
+          <span className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 rounded-full text-xs font-semibold backdrop-blur-md">
+            <Sparkles className="w-3.5 h-3.5" /> คอลเลกชันใหม่
+          </span>
+          <h1 className="text-3xl md:text-5xl font-black leading-tight tracking-tight">
+            เติมสไตล์ให้<br />ทุกวันของคุณ
+          </h1>
+          <p className="text-slate-300 text-sm md:text-base leading-relaxed">
+            เลือกชมสินค้าแฟชั่น อุปกรณ์อิเล็กทรอนิกส์ และเครื่องประดับที่คัดสรรมาเพื่อไลฟ์สไตล์ของคุณ
+          </p>
+          <div className="pt-2">
+            <a
+              href="#products"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-slate-100 text-slate-900 font-bold rounded-2xl transition-all shadow-lg hover:gap-3"
+            >
+              เลือกซื้อสินค้า <ArrowRight className="w-4 h-4 text-indigo-600" />
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* จุดเด่นบริการ 3 ช่อง */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-2">
+        <div className="flex flex-col items-center text-center space-y-1.5">
+          <div className="w-11 h-11 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 shadow-sm">
+            <ShieldCheck className="w-5 h-5" />
+          </div>
+          <h3 className="font-bold text-slate-800 text-sm">คุณภาพที่คัดสรร</h3>
+          <p className="text-xs text-slate-500 max-w-xs">
+            เลือกสินค้าคุณภาพเพื่อการใช้งานที่ตอบโจทย์
+          </p>
+        </div>
+
+        <div className="flex flex-col items-center text-center space-y-1.5">
+          <div className="w-11 h-11 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 shadow-sm">
+            <RotateCcw className="w-5 h-5" />
+          </div>
+          <h3 className="font-bold text-slate-800 text-sm">เลือกซื้อได้สบายใจ</h3>
+          <p className="text-xs text-slate-500 max-w-xs">
+            ติดต่อร้านค้าเพื่อสอบถามเงื่อนไขการเปลี่ยนหรือคืนสินค้า
+          </p>
+        </div>
+
+        <div className="flex flex-col items-center text-center space-y-1.5">
+          <div className="w-11 h-11 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 shadow-sm">
+            <Zap className="w-5 h-5" />
+          </div>
+          <h3 className="font-bold text-slate-800 text-sm">จัดส่งถึงคุณ</h3>
+          <p className="text-xs text-slate-500 max-w-xs">
+            ติดตามรายละเอียดการจัดส่งได้จากร้านค้า
+          </p>
+        </div>
+      </div>
+
+      {/* กล่องค้นหา & จัดเรียง */}
+      <div id="products" className="bg-slate-50/80 p-3.5 md:p-4 rounded-3xl border border-slate-100 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="relative w-full sm:w-80">
+          <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            placeholder="ค้นหาสินค้าที่ต้องการ..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 bg-white rounded-2xl border border-slate-200/80 text-sm focus:outline-none focus:border-indigo-600 shadow-sm"
+          />
+        </div>
+
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+          <span className="text-xs font-semibold text-slate-500 whitespace-nowrap">
+            เรียงตาม:
+          </span>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="px-4 py-2 bg-white rounded-2xl border border-slate-200/80 text-xs font-bold text-slate-700 focus:outline-none focus:border-indigo-600 shadow-sm cursor-pointer"
+          >
+            <option value="recommended">สินค้าแนะนำ</option>
+            <option value="price-low">ราคา: ต่ำ - สูง</option>
+            <option value="price-high">ราคา: สูง - ต่ำ</option>
+            <option value="rating">คะแนนรีวิวสูงสุด</option>
+          </select>
+        </div>
+      </div>
+
+      {/* หมวดหมู่ & สินค้า */}
+      <div className="space-y-6">
+        <div className="flex flex-wrap gap-2">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-5 py-2 rounded-2xl text-xs font-bold transition-all ${
+                selectedCategory === cat
+                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20'
+                  : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/70'
+              }`}
+            >
+              {categoryNames[cat] || cat}
+            </button>
+          ))}
+        </div>
+
+        {isLoading ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="bg-slate-100 h-72 rounded-3xl animate-pulse" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {filteredAndSortedProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
