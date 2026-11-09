@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Store, Grid, Package, Info, ShoppingBag, Sparkles, Heart } from 'lucide-react'
+import { Store, Grid, Package, Info, ShoppingBag, Sparkles, Heart, LogIn, LogOut, UserRound } from 'lucide-react'
+import { logout } from '../api/auth'
+import { useAuthStore } from '../store/useAuthStore'
 import { useCartStore } from '../store/useCartStore'
 import { useOrderStore } from '../store/useOrderStore'
 import { useWishlistStore } from '../store/useWishlistStore'
@@ -12,12 +14,25 @@ export default function Navbar() {
   const items = useCartStore((state) => state.items)
   const orders = useOrderStore((state) => state.orders)
   const wishlistIds = useWishlistStore((state) => state.wishlistIds)
+  const user = useAuthStore((state) => state.user)
+  const token = useAuthStore((state) => state.token)
+  const clearSession = useAuthStore((state) => state.logout)
 
   const [isWishlistOpen, setIsWishlistOpen] = useState(false)
 
   const totalCartItems = items.reduce((sum, item) => sum + item.quantity, 0)
   const totalOrders = orders.length
   const totalWishlist = wishlistIds.length
+
+  async function handleLogout() {
+    try {
+      await logout(token)
+    } catch (error) {
+      console.warn('Logout API unavailable; clearing the local session:', error)
+    } finally {
+      clearSession()
+    }
+  }
 
   const navLinks = [
     { path: '/', label: 'หน้าร้าน', icon: Store },
@@ -89,6 +104,21 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center gap-2">
+            {user ? (
+              <div className="flex items-center gap-1.5">
+                <span className="hidden max-w-28 items-center gap-1.5 truncate rounded-xl bg-slate-50 px-3 py-2 text-xs font-bold text-slate-600 sm:inline-flex">
+                  <UserRound className="size-4 shrink-0 text-indigo-500" />
+                  {user.name}
+                </span>
+                <button onClick={handleLogout} className="inline-flex items-center gap-1.5 rounded-xl px-2.5 py-2 text-xs font-bold text-slate-500 transition hover:bg-rose-50 hover:text-rose-600" title="ออกจากระบบ" aria-label="ออกจากระบบ">
+                  <LogOut className="size-4" /><span className="hidden md:inline">ออกจากระบบ</span>
+                </button>
+              </div>
+            ) : (
+              <Link to="/login" className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-3 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-indigo-700">
+                <LogIn className="size-4" /><span className="hidden sm:inline">เข้าสู่ระบบ</span>
+              </Link>
+            )}
             {/* ปุ่มกดดูสินค้าที่ชอบ (Wishlist Button) */}
             <button
               onClick={() => setIsWishlistOpen(true)}

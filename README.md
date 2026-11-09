@@ -1,5 +1,17 @@
 # React + TypeScript + Vite
 
+## Login and API scaffold
+
+The login and registration pages use a small Node.js API in `server/index.mjs`. Start it separately with `npm run dev:api`, then run the frontend with `npm run dev`. Vite proxies `/api` requests to the local API on port 3001.
+
+The current API uses in-memory storage only: users and sessions are cleared whenever the API process restarts. It does not connect to a database. The PostgreSQL starter schema is in `server/schema.sql`; replace the in-memory maps in the API with a database repository when integrating persistence.
+
+The schema is aligned with the current app models: product IDs are `INTEGER`; API `title`/`image` map to database `name`/`image_url`; product and order-item prices are stored in USD with a currency code; the demo UI converts prices to THB using a fixed rate of 35. Shipping fields are split to match `ShippingAddress`, and `payment_method` accepts `promptpay` or `cod`. Order `status` is text to match the current store's Thai status string.
+
+Important integration gaps: wishlist, favorites, cart, and orders are still persisted in browser `localStorage`; they are not currently written to the API or associated with the login account. `collection_owners` supports a future account or guest-browser owner, but the client must send that identity when collection endpoints are added. Product rows must be upserted from the product API before writing collection/order rows. The PromptPay QR is only a generated demo image, so the current order status does not mean a real payment was verified.
+
+Available endpoints: `GET /api/health`, `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`, and `POST /api/auth/logout`. Passwords in the temporary API are hashed with Node.js `scrypt`; production should also use HTTPS, rate limiting, and secure HttpOnly cookie-based sessions.
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:

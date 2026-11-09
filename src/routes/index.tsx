@@ -6,6 +6,7 @@ import CategoriesPage from '../pages/CategoriesPage'
 import HomePage from '../pages/HomePage'
 import ProductDetailPage from '../pages/ProductDetailPage'
 import OrdersPage from '../pages/OrdersPage'
+import LoginPage from '../pages/LoginPage'
 
 export const router = createBrowserRouter([
   {
@@ -13,6 +14,7 @@ export const router = createBrowserRouter([
     element: <RootLayout />,
     children: [
       { index: true, element: <HomePage /> },
+      { path: 'login', element: <LoginPage /> },
       { path: 'product/:id', element: <ProductDetailPage /> },
       { path: 'cart', element: <CartPage /> },
       { path: 'orders', element: <OrdersPage /> },

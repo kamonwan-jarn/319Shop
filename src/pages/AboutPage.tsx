@@ -4,14 +4,16 @@ interface Developer {
   name: string
   studentId: string
   role: string
-  imageSrc: string
+  imageSrc?: string
 }
 
 // ข้อมูลสมาชิกกลุ่มผู้พัฒนา
 const developers: Developer[] = [
-  { name: 'นิฤมน ศรีวิชา', studentId: '1660704923', role: 'User Interface ', imageSrc: '/images/dev1.png' },
+  { name: 'ละอองทิพย์ พ่อครวงค์', studentId: '1660703016', role: 'DB Manager', imageSrc: '/images/dev1.png' },
   { name: 'ธนากร กระสายกลาง', studentId: '1660703172', role: 'API and State Management', imageSrc: '/images/dev2.png' },
-  { name: 'กมลวรรณ จารไทสงค์', studentId: '1660704931', role: 'Routing and Testing', imageSrc: '/images/dev3.png' },
+  { name: 'นิฤมน ศรีวิชา', studentId: '1660704923', role: 'User Interface ', imageSrc: '/images/dev3.png' },
+  { name: 'กมลวรรณ จารไทสงค์', studentId: '1660704931', role: 'Routing and Testing', imageSrc: '/images/dev4.png' },
+
 ]
 
 export default function AboutPage() {
@@ -66,7 +68,7 @@ export default function AboutPage() {
             <h2 id="developers-heading" className="text-xl font-bold text-slate-900">
               ผู้พัฒนา
             </h2>
-            <p className="text-xs text-slate-500">สมาชิกกลุ่ม 3 คน</p>
+            <p className="text-xs text-slate-500">สมาชิกกลุ่ม {developers.length} คน</p>
           </div>
         </div>
 
@@ -78,14 +80,20 @@ export default function AboutPage() {
               className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm hover:shadow-md transition group"
             >
               <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
-                <img
-                  src={developer.imageSrc}
-                  alt={`รูปโปรไฟล์ ${developer.name}`}
-                  className="size-full object-cover group-hover:scale-105 transition duration-300"
-                  onError={(event) => {
-                    event.currentTarget.style.display = 'none'
-                  }}
-                />
+                {developer.imageSrc ? (
+                  <img
+                    src={developer.imageSrc}
+                    alt={`รูปโปรไฟล์ ${developer.name}`}
+                    className="size-full object-cover group-hover:scale-105 transition duration-300"
+                    onError={(event) => {
+                      event.currentTarget.style.display = 'none'
+                    }}
+                  />
+                ) : (
+                  <div className="flex size-full items-center justify-center bg-gradient-to-br from-indigo-100 via-violet-50 to-slate-100 text-4xl font-black tracking-tight text-indigo-400" aria-label={`รูปแทน ${developer.name}`}>
+                    ลท
+                  </div>
+                )}
               </div>
               <div className="space-y-3 p-5">
                 <div className="min-h-[52px]">
