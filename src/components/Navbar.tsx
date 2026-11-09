@@ -12,8 +12,11 @@ import WishlistModal from './WishlistModal'
 export default function Navbar() {
   const location = useLocation()
   const items = useCartStore((state) => state.items)
+  const clearLocalCart = useCartStore((state) => state.clearLocalCart)
   const orders = useOrderStore((state) => state.orders)
+  const clearOrders = useOrderStore((state) => state.clearOrders)
   const wishlistIds = useWishlistStore((state) => state.wishlistIds)
+  const clearWishlist = useWishlistStore((state) => state.clearWishlist)
   const user = useAuthStore((state) => state.user)
   const token = useAuthStore((state) => state.token)
   const clearSession = useAuthStore((state) => state.logout)
@@ -31,6 +34,10 @@ export default function Navbar() {
       console.warn('Logout API unavailable; clearing the local session:', error)
     } finally {
       clearSession()
+      clearLocalCart()
+      clearWishlist()
+      clearOrders()
+      setIsWishlistOpen(false)
     }
   }
 

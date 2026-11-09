@@ -1,5 +1,8 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
+import { clearSavedCart, removeSavedCartItem, saveCartItem, updateSavedCartQuantity } from '../api/cart'
+import { useAuthStore } from './useAuthStore'
+import type { Product } from '../types/product'
 
 export interface CartItem {
   id: number
@@ -8,20 +11,22 @@ export interface CartItem {
 
 interface CartStore {
   items: CartItem[]
-  addItem: (id: number | string) => void
+  addItem: (id: number | string, product?: Product) => void
   removeItem: (id: number | string) => void
   updateQuantity: (id: number | string, quantity: number) => void
   clearCart: () => void
+  clearLocalCart: () => void
+  replaceItems: (items: CartItem[]) => void
 }
 
 export const useCartStore = create<CartStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       items: [],
 
-      addItem: (id) =>
+      addItem: (id, product) => {
+        const targetId = Number(id)
         set((state) => {
-          const targetId = Number(id)
           const existingItem = state.items.find((item) => Number(item.id) === targetId)
 
           if (existingItem) {
@@ -34,19 +39,36 @@ export const useCartStore = create<CartStore>()(
             }
           }
           return { items: [...state.items, { id: targetId, quantity: 1 }] }
-        }),
+        })
 
-      removeItem: (id) =>
+        const token = useAuthStore.getState().token
+        const quantity = get().items.find((item) => item.id === targetId)?.quantity
+        if (token && product && quantity) {
+          void saveCartItem(token, product, quantity).catch((error: unknown) => {
+            console.warn('Could not save cart item to the account:', error)
+          })
+        }
+      },
+
+      removeItem: (id) => {
+        const targetId = Number(id)
         set((state) => {
-          const targetId = Number(id)
           return {
             items: state.items.filter((item) => Number(item.id) !== targetId),
           }
-        }),
+        })
 
-      updateQuantity: (id, quantity) =>
+        const token = useAuthStore.getState().token
+        if (token) {
+          void removeSavedCartItem(token, targetId).catch((error: unknown) => {
+            console.warn('Could not remove the account cart item:', error)
+          })
+        }
+      },
+
+      updateQuantity: (id, quantity) => {
+        const targetId = Number(id)
         set((state) => {
-          const targetId = Number(id)
           if (quantity <= 0) {
             return {
               items: state.items.filter((item) => Number(item.id) !== targetId),
@@ -57,9 +79,30 @@ export const useCartStore = create<CartStore>()(
               Number(item.id) === targetId ? { ...item, quantity } : item
             ),
           }
-        }),
+        })
 
-      clearCart: () => set({ items: [] }),
+        const token = useAuthStore.getState().token
+        if (token) {
+          const saveRequest = quantity <= 0
+            ? removeSavedCartItem(token, targetId)
+            : updateSavedCartQuantity(token, targetId, quantity)
+          void saveRequest.catch((error: unknown) => {
+            console.warn('Could not update the account cart item:', error)
+          })
+        }
+      },
+
+      clearCart: () => {
+        set({ items: [] })
+        const token = useAuthStore.getState().token
+        if (token) {
+          void clearSavedCart(token).catch((error: unknown) => {
+            console.warn('Could not clear the account cart:', error)
+          })
+        }
+      },
+      clearLocalCart: () => set({ items: [] }),
+      replaceItems: (items) => set({ items }),
     }),
     {
       name: 'cart-storage',

@@ -13,22 +13,41 @@ export interface AuthResponse {
 const API_BASE = '/api/auth'
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const response = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-  })
+  let response: Response
+  try {
+    response = await fetch(`${API_BASE}${path}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+    })
+  } catch {
+    throw new Error('เชื่อมต่อ Auth API ไม่ได้ กรุณาเริ่มเซิร์ฟเวอร์ด้วย npm run dev:api')
+  }
 
-  const payload: unknown = await response.json()
+  const responseText = await response.text()
+  let payload: unknown = null
+  if (responseText.trim()) {
+    try {
+      payload = JSON.parse(responseText) as unknown
+    } catch {
+      throw new Error(`Auth API ส่งข้อมูลกลับมาไม่ใช่ JSON (HTTP ${response.status})`)
+    }
+  }
+
   if (!response.ok) {
     const message =
       typeof payload === 'object' && payload !== null && 'error' in payload && typeof payload.error === 'string'
         ? payload.error
-        : 'เกิดข้อผิดพลาด กรุณาลองใหม่'
+        : `Auth API ตอบกลับโดยไม่มีรายละเอียด (HTTP ${response.status})`
     throw new Error(message)
   }
+
+  if (payload === null) {
+    throw new Error('Auth API ไม่ได้ส่งข้อมูลกลับมา กรุณาตรวจสอบว่าเซิร์ฟเวอร์กำลังทำงาน')
+  }
+
   return payload as T
 }
 

@@ -1,5 +1,5 @@
--- PostgreSQL starter schema aligned to the current React/TypeScript models.
--- This schema is not connected to the app yet; see README for integration notes.
+-- Legacy, non-authoritative schema draft. Do not apply this file.
+-- The connected application uses prisma/schema.prisma and Prisma migrations.
 -- Product prices are sourced in USD. The UI converts them to THB at a demo rate.
 
 CREATE TABLE users (

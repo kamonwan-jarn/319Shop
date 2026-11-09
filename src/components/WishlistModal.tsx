@@ -85,7 +85,7 @@ export default function WishlistModal({ isOpen, onClose }: WishlistModalProps) {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => {
-                        addItem(product.id)
+                        addItem(product.id, product)
                         addToast(`เพิ่ม "${title}" ลงในตะกร้าเรียบร้อยแล้ว`, 'success')
                       }}
                       className="p-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1 active:scale-95"

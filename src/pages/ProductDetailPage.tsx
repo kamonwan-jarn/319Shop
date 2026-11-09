@@ -46,7 +46,7 @@ export default function ProductDetailPage() {
 
   const handleAddToCart = () => {
     for (let i = 0; i < quantity; i++) {
-      addItem(product.id)
+      addItem(product.id, product)
     }
     setAdded(true)
     setTimeout(() => setAdded(false), 2000)

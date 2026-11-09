@@ -2,6 +2,8 @@ import { useState, type FormEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail, ShoppingBag, UserRound } from 'lucide-react'
 import { login, register } from '../api/auth'
+import { fetchSavedCart } from '../api/cart'
+import { useCartStore } from '../store/useCartStore'
 import { useAuthStore } from '../store/useAuthStore'
 
 export default function LoginPage() {
@@ -13,6 +15,7 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const setSession = useAuthStore((state) => state.setSession)
+  const replaceCart = useCartStore((state) => state.replaceItems)
   const navigate = useNavigate()
   const location = useLocation()
   const returnTo = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname ?? '/'
@@ -27,6 +30,11 @@ export default function LoginPage() {
         ? await register(name.trim(), email.trim(), password)
         : await login(email.trim(), password)
       setSession(session)
+      try {
+        replaceCart(await fetchSavedCart(session.token))
+      } catch (cartError) {
+        console.warn('Could not restore the account cart:', cartError)
+      }
       navigate(returnTo, { replace: true })
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'ไม่สามารถเข้าสู่ระบบได้')

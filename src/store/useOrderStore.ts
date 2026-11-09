@@ -31,6 +31,7 @@ export interface Order {
 interface OrderStore {
   orders: Order[]
   addOrder: (order: Omit<Order, 'id' | 'createdAt' | 'status'>) => void
+  clearOrders: () => void
 }
 
 export const useOrderStore = create<OrderStore>()(
@@ -59,7 +60,8 @@ export const useOrderStore = create<OrderStore>()(
         set((state) => ({
           orders: [newOrder, ...state.orders]
         }))
-      }
+      },
+      clearOrders: () => set({ orders: [] }),
     }),
     {
       name: 'order-storage',

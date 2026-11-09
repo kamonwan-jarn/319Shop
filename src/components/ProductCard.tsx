@@ -17,7 +17,7 @@ interface ProductCardProps {
 export default function ProductCard({ product, priority = false }: ProductCardProps) {
   const addItem = useCartStore((state) => state.addItem)
   const toggleWishlist = useWishlistStore((state) => state.toggleWishlist)
-  const isInWishlist = useWishlistStore((state) => state.isInWishlist)
+  const isFav = useWishlistStore((state) => state.wishlistIds.includes(Number(product.id)))
   const addToast = useToastStore((state) => state.addToast)
 
   const [showQuickView, setShowQuickView] = useState(false)
@@ -25,8 +25,6 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
   const [hasError, setHasError] = useState(false)
 
   const { title, category } = translateProduct(product)
-  const isFav = isInWishlist(product.id)
-
   const optimizedSrc = getOptimizedImageUrl(product.image, {
     size: 'card',
     width: 360,
@@ -34,7 +32,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
   })
 
   const handleAddToCart = () => {
-    addItem(product.id)
+    addItem(product.id, product)
     addToast(`เพิ่ม "${title}" ลงตะกร้าแล้ว`, 'success')
   }
 

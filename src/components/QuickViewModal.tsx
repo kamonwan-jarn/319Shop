@@ -16,16 +16,15 @@ export default function QuickViewModal({ product, onClose }: QuickViewModalProps
   const [added, setAdded] = useState(false)
   const addItem = useCartStore((state) => state.addItem)
   const toggleWishlist = useWishlistStore((state) => state.toggleWishlist)
-  const isInWishlist = useWishlistStore((state) => state.isInWishlist)
+  const isFav = useWishlistStore((state) => state.wishlistIds.includes(Number(product?.id)))
   const addToast = useToastStore((state) => state.addToast)
 
   if (!product) return null
 
   const { title, description, category } = translateProduct(product)
-  const isFav = isInWishlist(product.id)
 
   const handleAddToCart = () => {
-    addItem(product.id)
+    addItem(product.id, product)
     setAdded(true)
     addToast(`เพิ่ม "${title}" ลงในตะกร้าเรียบร้อยแล้ว`, 'success')
     setTimeout(() => setAdded(false), 2000)
